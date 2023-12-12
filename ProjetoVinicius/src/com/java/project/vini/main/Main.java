@@ -1,0 +1,215 @@
+package com.java.project.vini.main;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Scanner;
+
+import com.java.project.vini.loja.Clientes;
+import com.java.project.vini.loja.Conta;
+import com.java.project.vini.loja.Roupas;
+
+public class Main {
+
+	static Scanner leia = new Scanner(System.in);
+	static List<Conta> conta;
+	static List<Clientes> clientes;
+	static List<Roupas> roupas;
+
+	public static void main(String[] args) {
+
+		conta = new ArrayList<Conta>();
+		clientes = new ArrayList<Clientes>();
+		roupas = new ArrayList<Roupas>();
+		menu();
+	}
+
+	private static void menu() {
+		System.out.println(
+				"Bem Vindo ao bazar\n 1 - Cadastrar\n 2 - Consultar Saldo\n 3 - Anunciar Roupa\n 4 - Remover Roupa\n 5 - AddMoney\n 6 - Comprar roupa");
+		int opt = leia.nextInt();
+
+		switch (opt) {
+		case 1:
+			cadastrar();
+			break;
+		case 2:
+			consuSaldoCliente();
+			break;
+		case 3:
+			anunciarRoupa();
+			break;
+		case 4:
+			removerRoupa();
+			break;
+		case 5:
+			addMoney();
+			break;
+		case 6:
+			comprar();
+
+			break;
+		}
+
+	}
+
+	private static void comprar() {
+		System.out.println("Cpf: ");
+		String cpf = leia.next();
+		boolean cpfEncontrado = false;
+
+		for (Clientes c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				cpfEncontrado = true;
+
+				System.out.println("Qual id de roupa você deseja comprar? ");
+				Integer idCompra = leia.nextInt();
+				boolean roupaEncontrada = false;
+
+				Iterator<Roupas> iterator = roupas.iterator();
+				while (iterator.hasNext()) {
+					Roupas r = iterator.next();
+					if (r.getId() == idCompra) {
+						roupaEncontrada = true;
+						if (c.getDinheiro() >= r.getPreco()) {
+							c.setDinheiro(c.getDinheiro() - r.getPreco());
+							iterator.remove();
+							System.out.println("Roupa comprada com sucesso.");
+						} else {
+							System.out.println("Sem saldo suficiente.");
+						}
+						break;
+					}
+				}
+
+				if (!roupaEncontrada) {
+					System.out.println("Roupa não encontrada.");
+				}
+			}
+		}
+
+		if (!cpfEncontrado) {
+			System.out.println("Cpf não existe no banco.");
+		}
+
+		menu();
+	}
+
+	private static void addMoney() {
+		System.out.println("Cpf");
+		String cpf = leia.next();
+		for (Clientes c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				System.out.println("Valor depositado");
+				Integer money = leia.nextInt();
+
+				c.setDinheiro(c.getDinheiro() + money);
+
+			} else {
+				System.out.println("Cpf não existe no banco");
+			}
+		}
+		menu();
+	}
+
+	private static void removerRoupa() {
+		System.out.println("Cpf: ");
+		String cpf = leia.next();
+
+		boolean cpfEncontrado = false;
+
+		for (Clientes c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				cpfEncontrado = true;
+
+				System.out.println("Digite o id da roupa: ");
+				Integer id = leia.nextInt();
+
+				Iterator<Roupas> iterator = roupas.iterator();
+				while (iterator.hasNext()) {
+					Roupas r = iterator.next();
+					if (r.getId() == id) {
+						iterator.remove();
+						System.out.println("Roupa removida com sucesso.");
+					}
+				}
+			}
+		}
+
+		if (!cpfEncontrado) {
+			System.out.println("Cpf não existe no banco");
+		}
+
+		menu();
+	}
+
+	private static void anunciarRoupa() {
+		System.out.println("Cpf");
+		String cpf = leia.next();
+		for (Clientes c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				System.out.println("Preço: ");
+				Integer preco = leia.nextInt();
+				System.out.println("Sexo da roupa: ");
+				String sexo = leia.next();
+				System.out.println("Tamanho: ");
+				String tamanho = leia.next();
+				System.out.println("Cor: ");
+				String cor = leia.next();
+				System.out.println("Modelo: ");
+				String model = leia.next();
+
+				Integer id = 0;
+
+				for (Roupas r : roupas) {
+					if (r.getId() == id) {
+						id++;
+					}
+				}
+				Roupas roupa = new Roupas(model, preco, sexo, tamanho, cor, id);
+
+				roupas.add(roupa);
+
+				Conta cont = new Conta(c, roupa);
+
+				conta.add(cont);
+
+			} else {
+				System.out.println("Cpf não existe no banco");
+			}
+		}
+		menu();
+	}
+
+	private static void consuSaldoCliente() {
+		for (Clientes c : clientes) {
+			System.out.println(c);
+		}
+
+		for (Roupas r : roupas) {
+			System.out.println(r);
+		}
+
+		for (Conta c : conta) {
+			System.out.println(c);
+		}
+		menu();
+	}
+
+	private static void cadastrar() {
+		System.out.println("Nome: ");
+		String nome = leia.next();
+		System.out.println("Cpf");
+		String cpf = leia.next();
+		for (Clientes c : clientes) {
+			if (c.getCpf().equalsIgnoreCase(cpf)) {
+				System.out.println("Cpf já usado!");
+				menu();
+			}
+		}
+		Clientes cliente = new Clientes(nome, cpf, 0);
+		clientes.add(cliente);
+
+		menu();
+	}
+}
